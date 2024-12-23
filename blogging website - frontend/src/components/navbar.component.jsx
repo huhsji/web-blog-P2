@@ -1,9 +1,26 @@
+import { useContext } from "react";
 import { useState } from "react";
 import { Link , Outlet} from "react-router-dom";
+import { UserContext } from "../App";
 import logo from "../imgs/logo.png";
+import UserNavigationPanel from "./user-navigation.component";
 
 const Navbar = () => {
+
   const [searchBoxVisibility, setSearchBoxVisibility] = useState(false);
+  const [ userNavPanel , setUserNevPanel ] = useState(false);
+
+  const { userAuth, userAuth: { access_token, profile_img } } = useContext(UserContext);
+
+  const handleUserNavPanel = () => {
+    setUserNevPanel (currentVal => ! currentVal);
+  }
+
+  const handleBlur = () => {
+    setTimeout(() => {
+      setUserNevPanel (false);
+    }, 200);
+  }
 
   return (
     <>
@@ -41,15 +58,42 @@ const Navbar = () => {
           <p>Write</p>
         </Link>
 
-        <Link className="btn-dark py-2 " to="/signin"> {/* ใช้ `mr-2` เพื่อให้มีระยะห่างจาก Sign In */}
-          Sign In
-        </Link>
+        {
+          access_token ?
+          <>
+            <Link to="/dashboard/notification">
+                <button className="w-12 h-12 rounded-full bg-grey relative hover:bg-black/10">
+                <i class="fi fi-rr-bell text-2xl block mt-1"></i>
+                </button>
+            </Link>
+            <div className="relative" onClick={handleUserNavPanel} onBlur={handleBlur}>
+                      <button className="w-12 h-12 mt-1">
+                        <img src={profile_img} 
+                        className="w-full h-full object-cover rounded-full "/>
+                      </button>
+                  {
+                    userNavPanel ? <UserNavigationPanel />
+                  : ""
+                  }
+                  
+                  </div>
 
-        {/* ใช้ `ml-2` หรือ `gap-2` เพื่อให้ Sign Up เข้าใกล้กับ Sign In */}
-        <Link className="btn-light py-2 hidden md:block" to="/signup">
-          Sign Up
-        </Link>
+          </>
+          :
+          <>
+            <Link className="btn-dark py-2 " to="/signin"> {/* ใช้ `mr-2` เพื่อให้มีระยะห่างจาก Sign In */}
+              Sign In
+            </Link>
+
+            {/* ใช้ `ml-2` หรือ `gap-2` เพื่อให้ Sign Up เข้าใกล้กับ Sign In */}
+            <Link className="btn-light py-2 hidden md:block" to="/signup">
+              Sign Up
+            </Link>
+          </>
+        }
+        
       </div>
+
     </nav>
     
       <Outlet />
